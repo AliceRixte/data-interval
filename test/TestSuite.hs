@@ -5,6 +5,7 @@ import TestIntervalMap
 import TestIntervalRelation
 import TestIntervalSet
 import TestIntegerInterval
+import TestMap
 import Test.Tasty
 
 main :: IO ()
@@ -14,4 +15,5 @@ main = defaultMain $ testGroup "data-interval test suite"
   , intervalRelationTestGroup
   , intervalSetTestGroup
   , integerIntervalTestGroup
+  , mapTestGroup
   ]
