@@ -55,6 +55,11 @@ module Data.IntervalSet
   , toAscList
   , toDescList
   , fromAscList
+
+  -- ** Folds
+  , Data.IntervalSet.foldr
+  , Data.IntervalSet.foldl'
+  , Data.IntervalSet.foldMap
   )
   where
 
@@ -65,7 +70,7 @@ import Algebra.Lattice
 import Control.DeepSeq
 import Data.Data
 import Data.ExtendedReal
-import Data.Foldable hiding (null, toList)
+import Data.Foldable as Foldable hiding (null, toList)
 import Data.Function
 import Data.Hashable
 import Data.List (sortBy)
@@ -315,12 +320,12 @@ delete i (IntervalSet is) = IntervalSet $
 union :: Ord r => IntervalSet r -> IntervalSet r -> IntervalSet r
 union is1@(IntervalSet m1) is2@(IntervalSet m2) =
   if Map.size m1 >= Map.size m2
-  then foldl' (\is i -> insert i is) is1 (toList is2)
-  else foldl' (\is i -> insert i is) is2 (toList is1)
+  then Foldable.foldl' (\is i -> insert i is) is1 (toList is2)
+  else Foldable.foldl' (\is i -> insert i is) is2 (toList is1)
 
 -- | union of a list of interval sets
 unions :: Ord r => [IntervalSet r] -> IntervalSet r
-unions = foldl' union empty
+unions = Foldable.foldl' union empty
 
 -- | intersection of two interval sets
 intersection :: Ord r => IntervalSet r -> IntervalSet r -> IntervalSet r
@@ -328,12 +333,12 @@ intersection is1 is2 = difference is1 (complement is2)
 
 -- | intersection of a list of interval sets
 intersections :: Ord r => [IntervalSet r] -> IntervalSet r
-intersections = foldl' intersection whole
+intersections = Foldable.foldl' intersection whole
 
 -- | difference of two interval sets
 difference :: Ord r => IntervalSet r -> IntervalSet r -> IntervalSet r
 difference is1 is2 =
-  foldl' (\is i -> delete i is) is1 (toList is2)
+  Foldable.foldl' (\is i -> delete i is) is1 (toList is2)
 
 -- -----------------------------------------------------------------------
 
@@ -405,3 +410,14 @@ notB :: Boundary -> Boundary
 notB = \case
   Open   -> Closed
   Closed -> Open
+
+------------------------------------------------------------------------------
+
+foldr :: Ord r => (Interval r -> b -> b) -> b -> IntervalSet r -> b
+foldr f z (IntervalSet m) = Map.foldr f z m
+
+foldl' :: Ord r => (a -> Interval r -> a) -> a -> IntervalSet r -> a
+foldl' f z (IntervalSet m) = Map.foldl' f z m
+
+foldMap :: (Ord r, Monoid m) => (Interval r -> m) -> IntervalSet r -> m
+foldMap f (IntervalSet m) = Map.foldr (\i acc -> f i `mappend` acc) mempty m
