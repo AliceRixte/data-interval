@@ -31,6 +31,7 @@ module Data.Interval
 
   -- * Construction
   , interval
+  , intervalSwap
   , (<=..<=)
   , (<..<=)
   , (<=..<)
