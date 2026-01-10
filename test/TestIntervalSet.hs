@@ -15,6 +15,10 @@ import Data.Maybe
 import Data.Monoid
 import Data.Ratio
 import Data.Typeable (cast)
+import qualified Data.Map as Map
+import Data.Map (Map)
+import qualified Data.Set as Set
+import Data.Set (Set)
 
 import Test.Tasty
 import Test.Tasty.QuickCheck
@@ -674,6 +678,84 @@ pickup :: (Ord r, Real r, Fractional r) => IntervalSet r -> Maybe r
 pickup xs = do
   x <- listToMaybe (IntervalSet.toList xs)
   Interval.pickup x
+
+{--------------------------------------------------------------------
+  Data.Map
+--------------------------------------------------------------------}
+
+arbitraryKey :: Map k a -> Gen k
+arbitraryKey m = elements (Map.keys m)
+
+prop_member_restrictKeysToInterval :: Property
+prop_member_restrictKeysToInterval =
+  forAll arbitrary $ \(m' :: Map Rational Integer) ->
+    -- map must be non empty to get an arbitrary key
+    let m = Map.insert 0 0 m' in
+    forAll (arbitraryKey m) $ \k ->
+      forAll arbitrary $ \is ->
+        IntervalSet.member k is ==
+          Map.member k (IntervalSet.restrictKeysToIntervals m is)
+
+prop_restrictKeysToIntervals_same_as_filterKeys :: Property
+prop_restrictKeysToIntervals_same_as_filterKeys =
+  forAll arbitrary $ \(m :: Map Rational Integer) ->
+    forAll arbitrary $ \is ->
+      IntervalSet.restrictKeysToIntervals m is ===
+        Map.filterWithKey (\k _ -> IntervalSet.member k is) m
+
+
+prop_not_member_withoutKeysFromInterval :: Property
+prop_not_member_withoutKeysFromInterval =
+  forAll arbitrary $ \(m' :: Map Rational Integer) ->
+    -- map must be non empty to get an arbitrary key
+    let m = Map.insert 0 0 m' in
+    forAll (arbitraryKey m) $ \k ->
+      forAll arbitrary $ \is ->
+        IntervalSet.member k is ==
+            Map.notMember k (IntervalSet.withoutKeysFromIntervals is m)
+
+prop_withoutKeysFromIntervals_same_as_filterKeys :: Property
+prop_withoutKeysFromIntervals_same_as_filterKeys =
+  forAll arbitrary $ \(m :: Map Rational Integer) ->
+    forAll arbitrary $ \is ->
+      IntervalSet.withoutKeysFromIntervals is m ===
+        Map.filterWithKey (\k _ -> not (IntervalSet.member k is)) m
+
+{--------------------------------------------------------------------
+  Data.Set
+--------------------------------------------------------------------}
+
+prop_member_intersectIntervals :: Property
+prop_member_intersectIntervals =
+  forAll arbitrary $ \(s :: Set Rational) ->
+    forAll arbitrary $ \i ->
+      forAll arbitrary $ \k ->
+      (IntervalSet.member k i && Set.member k s) ===
+          Set.member k (IntervalSet.intersectIntervals s i)
+
+prop_intersectIntervals_same_as_filter :: Property
+prop_intersectIntervals_same_as_filter =
+  forAll arbitrary $ \(s :: Set Rational) ->
+    forAll arbitrary $ \i ->
+      IntervalSet.intersectIntervals s i ===
+        Set.filter (\k -> IntervalSet.member k i) s
+
+prop_not_member_differenceIntervals :: Property
+prop_not_member_differenceIntervals =
+  forAll arbitrary $ \(s :: Set Rational) ->
+    forAll arbitrary $ \i ->
+      forAll arbitrary $ \k ->
+        IntervalSet.notMember k i ||
+          Set.notMember k (IntervalSet.differenceIntervals s i)
+
+prop_differenceIntervals_same_as_filter :: Property
+prop_differenceIntervals_same_as_filter =
+  forAll arbitrary $ \(s :: Set Rational) ->
+    forAll arbitrary $ \i ->
+      IntervalSet.differenceIntervals s i ===
+        Set.filter (\k -> IntervalSet.notMember k i) s
+
+
 
 ------------------------------------------------------------------------
 -- Test harness
