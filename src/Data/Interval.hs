@@ -78,6 +78,16 @@ module Data.Interval
 
   -- * Intervals relation
   , relate
+
+  -- * Operations on the keys of 'Data.Map'
+  , restrictMapKeysToInterval
+  , withoutMapKeysFromInterval
+  , splitMapAtBoundariesOf
+
+  -- * Operations on 'Data.Set'
+  , intersectSetAndInterval
+  , differenceSetAndInterval
+  , splitSetAtBoundariesOf
   ) where
 
 #ifdef MIN_VERSION_lattices
