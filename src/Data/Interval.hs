@@ -35,6 +35,7 @@ module Data.Interval
   , (<..<=)
   , (<=..<)
   , (<..<)
+  , intervalSwap
   , whole
   , empty
   , singleton

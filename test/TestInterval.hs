@@ -96,6 +96,19 @@ prop_distinct_singleton_intersection =
       == Interval.empty
 
 {--------------------------------------------------------------------
+  intervalSwap
+--------------------------------------------------------------------}
+
+prop_interval_swap =
+  forAll arbitrary $ \ (a :: Extended Rational) bounda b boundb ->
+    if a <= b then
+      Interval.interval (a, bounda) (b, boundb) ==
+      Interval.intervalSwap (a, bounda) (b, boundb)
+    else
+      Interval.interval (b, boundb) (a, bounda) ==
+      Interval.intervalSwap (a, bounda) (b, boundb)
+
+{--------------------------------------------------------------------
   Intersection
 --------------------------------------------------------------------}
 
