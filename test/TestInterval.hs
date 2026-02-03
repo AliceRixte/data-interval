@@ -272,6 +272,24 @@ prop_isConnected_symmetric =
     forAll intervals $ \b ->
       (a `Interval.isConnected` b) == (b `Interval.isConnected` a)
 
+{-------------------------------------------------------------------
+  areDisjoint
+-------------------------------------------------------------------}
+
+prop_areDisjoint =
+  forAll intervals $ \a ->
+    forAll intervals $ \b ->
+      Interval.areDisjoint a b == Interval.null (Interval.intersection a b)
+
+{-------------------------------------------------------------------
+  areOverlapping
+-------------------------------------------------------------------}
+
+prop_areOverlapping =
+  forAll intervals $ \a ->
+    forAll intervals $ \b ->
+      Interval.areOverlapping a b == not (Interval.null (Interval.intersection a b))
+
 {--------------------------------------------------------------------
   simplestRationalWithin
 --------------------------------------------------------------------}
