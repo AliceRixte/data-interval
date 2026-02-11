@@ -49,6 +49,8 @@ module Data.Interval
   , isSubsetOf
   , isProperSubsetOf
   , isConnected
+  , areDisjoint
+  , areOverlapping
   , lowerBound
   , upperBound
   , lowerBound'
@@ -374,6 +376,18 @@ isConnected x y
     (lb2,lb2in) = lowerBound' y
     (ub1,ub1in) = upperBound' x
     (ub2,ub2in) = upperBound' y
+
+-- | Are the intervals disjoint ?
+--
+-- >>> 'areDisjoint' i1 i2 == 'null' ('intersection' i j))
+areDisjoint :: Ord r => Interval r -> Interval r -> Bool
+areDisjoint x y = x <! y || x >! y
+
+-- | Are the intervals overlapping ?
+--
+-- >>> 'areOverlapping' i1 i2 == not ('areDisjoint' i1 i2)
+areOverlapping :: Ord r => Interval r -> Interval r -> Bool
+areOverlapping x y = not (areDisjoint x y)
 
 -- | Width of a interval. Width of an unbounded interval is @undefined@.
 width :: (Num r, Ord r) => Interval r -> r
