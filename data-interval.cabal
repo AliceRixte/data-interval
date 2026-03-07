@@ -59,6 +59,7 @@ Library
      Safe
   Exposed-Modules:
      Data.Interval
+     Data.IntervalMap.Base2
      Data.IntervalMap.Lazy
      Data.IntervalMap.Strict
      Data.IntervalRelation
